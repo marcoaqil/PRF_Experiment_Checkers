@@ -5,11 +5,20 @@ Requirements: psychopy and exptools2
 
 **Usage**
 
-Create setting files named expsettings_*Task*.yml within the Experiment folder. Change *Task* to your actual task name. Run the following line from within the Experient folder. 
+Create setting files named expsettings_*Task*.yml within the Experiment folder. Change *Task* to your actual task name. Run the following line from within the Experient folder. This particular version also compatibility with the eyetracker and subject-specific delimitation of the visual field from within the scanner. Therefore, we have two extra flags that must be used together. 
 
-- python main.py sub-*xxx* ses-*x* task-*NameTask* run-*x*
+```python
+python main.py sub-*xxx* ses-*x* task-*NameTask* run-*x* *eyetracker [0=**no**|1=**yes**]* *delimiter [0=**no**|1=**yes**]*
+```
 
-Subject SHOULD be specified according the the BIDS convention (sub-001, sub-002 and so on), Task MUST match one of the settings files in the Experiment folder, and Run SHOULD be an integer.
+Subject SHOULD be specified according the the BIDS convention (sub-001, sub-002 and so on), Task MUST match one of the settings files in the Experiment folder, and Run/eyetracker/delimiter SHOULD be an integers.
+
+For example:
+```python
+            #  sub  ses task    # run   # eye   # delim
+python main.py 999  1   "2R"    1       1       1
+python main.py 999  1   "2R"    1       1       0
+```
 
 **Marco's PRF mapping**
 
