@@ -5,6 +5,7 @@ preferences:
 
 window:
     size: [1920, 1080]
+    screen: 1
     pos: [0, 0]
     color: [0, 0, 0]
     fullscr: True
@@ -17,7 +18,7 @@ monitor:
     distance: 210  # in cm
     gamma: 1
 
-operating system: linux # specify the OS the code is run on as 'mac', 'linux', or 'windows'
+operating_system: linux # specify the OS the code is run on as 'mac', 'linux', or 'windows'
 
 mouse:
     visible: False
@@ -39,18 +40,27 @@ mri:
     sound: False  # simulate scanner noise
 
 
-PRF stimulus settings:
-    Scanner sync: True                # set this to true to make bar move on input 't'
+PRF_stimulus_settings:
+    Scanner_sync: True                # set this to true to make bar move on input 't'
     Screenshot: True
-    Squares in bar: 2
-    Bar pass steps: 20                # number of steps the bar takes to traverse the aperture
-    Blanks length: 10                  # length of interbar periods (-1 in orientation). like bar pass steps, in units of TRs or bar step length
-    Bar orientations: [-1, 0,  225, -1, 90, 315, -1,  180, 45, -1,  270, 135,  -1, -1]
-    Bar width in degrees: 1.25
-    Checkers motion speed: 3          # checkers motion speed. direction is randomly up/down at each bar step
-    Size fixation dot in degrees: 0.05 # dot changes color on average every two TRs (or bar steps)
-    Bar step length: 5                # in seconds. this is only used if Scanner sync is set to False
+    Squares_in_bar: 2
+    Bar_pass_steps: 20                # number of steps the bar takes to traverse the aperture
+    Blanks_length: 10                  # length of interbar periods (-1 in orientation). like bar pass steps, in units of TRs or bar step length
+    Bar_orientations: [-1, 0,  225, -1, 90, 315, -1,  180, 45, -1,  270, 135,  -1, -1]
+    Bar_width_in_degrees: 1.25
+    Checkers_motion_speed: 3          # checkers motion speed. direction is randomly up/down at each bar step
+    Size_fixation_dot_in_degrees: 0.05 # dot changes color on average every two TRs (or bar steps)
+    Bar_step_length: 1.5                # in seconds. this is only used if Scanner sync is set to False
+    delimiter_increments: 5
 
-Task settings: 
-    response interval: 0.8 # time in s you allow the participant to respond that still counts as correct response
-    color switch interval: 3.5 # interval in s between color dot switches, note: a random decimal between -1 and +1 is added to it in the code 
+Task_settings: 
+    response_interval: 0.8 # time in s you allow the participant to respond that still counts as correct response
+    color_switch_interval: 3.5 # interval in s between color dot switches, note: a random decimal between -1 and +1 is added to it in the code 
+
+various:
+    piechart_width: 1
+    text_width: 150
+    text_height: 0.5
+    buttons: ['b', 'e', 'j', 'k', 'l', 'semicolon', 'y', 'r']
+    button_size: 2
+    cue_color: "#000000"

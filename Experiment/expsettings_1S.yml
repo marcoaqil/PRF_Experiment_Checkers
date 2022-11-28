@@ -14,7 +14,7 @@ window:
 monitor:
     name: default
     width: 69.8  # in cm
-    distance: 210  # in cm
+    distance: 196  # in cm
     gamma: 1
 
 operating system: linux # specify the OS the code is run on as 'mac', 'linux', or 'windows'
@@ -49,9 +49,17 @@ PRF stimulus settings:
     Bar width in degrees: 0.625
     Checkers motion speed: 3          # checkers motion speed. direction is randomly up/down at each bar step
     Size fixation dot in degrees: 0.15 # dot changes color on average every two TRs (or bar steps)
-    Bar step length: 5                # in seconds. this is only used if Scanner sync is set to False
+    Bar_step_length: 1.5                # in seconds. this is only used if Scanner sync is set to False
+    delimiter_increments: 5
 
-Task settings: 
-    response interval: 0.8 # time in s you allow the participant to respond that still counts as correct response
-    color switch interval: 3.5 # interval in s between color dot switches, note: a random decimal between -1 and +1 is added to it in the code 
+Task_settings: 
+    response_interval: 0.8 # time in s you allow the participant to respond that still counts as correct response
+    color_switch_interval: 3.5 # interval in s between color dot switches, note: a random decimal between -1 and +1 is added to it in the code 
 
+various:
+    piechart_width: 1
+    text_width: 150
+    text_height: 0.5
+    buttons: ['b', 'e', 'j', 'k', 'l', 'semicolon', 'y', 'r']
+    button_size: 2
+    cue_color: "#000000"

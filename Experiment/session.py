@@ -11,134 +11,159 @@ import os
 from psychopy import visual
 from psychopy.visual import filters
 from psychopy import tools
+from exptools2.core import PylinkEyetrackerSession
+from exptools2.core.session import _merge_settings
+from trial import (
+    PRFTrial,
+    DummyWaiterTrial,
+    ScreenDelimiterTrial
+)
 
-from exptools2.core.session import Session
-from trial import PRFTrial
-from stim import PRFStim
-
+from stim import PRFStim, DelimiterLines
+import yaml
 opj = os.path.join
 
-
-
-class PRFSession(Session):
-
+class PRFSession(PylinkEyetrackerSession):
     
-    def __init__(self, output_str, output_dir, settings_file):
+    def __init__(self, output_str, output_dir, settings_file, eyetracker_on=True, delimit_screen=False):
         
+        super().__init__(output_str, output_dir=output_dir, settings_file=settings_file, eyetracker_on=eyetracker_on)  # initialize parent class!
         
-        super().__init__(output_str=output_str, output_dir=output_dir, settings_file=settings_file)
-        
+        # set screen delimiter
+        self.screen_delimit_trial = delimit_screen
+
         #if we are scanning, here I set the mri_trigger manually to the 't'. together with the change in trial.py, this ensures syncing
-        if self.settings['mri']['topup_scan']==True:
+        if self.settings['mri']['topup_scan']:
             self.topup_scan_duration=self.settings['mri']['topup_duration']
         
-        if self.settings['PRF stimulus settings']['Scanner sync']==True:
+        if self.settings['PRF_stimulus_settings']['Scanner_sync']:
             self.bar_step_length = self.settings['mri']['TR']
             self.mri_trigger='t'
-
-                     
         else:
-            self.bar_step_length = self.settings['PRF stimulus settings']['Bar step length']
+            self.bar_step_length = self.settings['PRF_stimulus_settings']['Bar_step_length']
             
-        if self.settings['PRF stimulus settings']['Screenshot']==True:
-            self.screen_dir=output_dir+'/'+output_str+'_Screenshots'
+        if self.settings['PRF_stimulus_settings']['Screenshot']:
+            self.screen_dir = opj(output_dir, f"{output_str}_Screenshots")
             if not os.path.exists(self.screen_dir):
-                os.mkdir(self.screen_dir)
-            
-        
-            
+                os.makedirs(self.screen_dir, exist_ok=True)
         
         #create all stimuli and trials at the beginning of the experiment, to save time and resources        
         self.create_stimuli()
         self.create_trials()
             
-        
-
-
-
-
-
     def create_stimuli(self):
         
-
-        
         #generate PRF stimulus
-        self.prf_stim = PRFStim(session=self, 
-                        squares_in_bar=self.settings['PRF stimulus settings']['Squares in bar'], 
-                        bar_width_deg=self.settings['PRF stimulus settings']['Bar width in degrees'],
-                        flicker_frequency=self.settings['PRF stimulus settings']['Checkers motion speed'])#self.deg2pix(self.settings['prf_max_eccentricity']))    
+        self.prf_stim = PRFStim(
+            session=self, 
+            squares_in_bar=self.settings['PRF_stimulus_settings']['Squares_in_bar'], 
+            bar_width_deg=self.settings['PRF_stimulus_settings']['Bar_width_in_degrees'],
+            flicker_frequency=self.settings['PRF_stimulus_settings']['Checkers_motion_speed'])#self.deg2pix(self.settings['prf_max_eccentricity']))    
         
-
         #currently unused
         #self.instruction_string = """Please fixate in the center of the screen. Your task is to respond whenever the dot changes color."""
-        
 
         #generate raised cosine alpha mask
-        mask = filters.makeMask(matrixSize=self.win.size[0], 
-                                shape='raisedCosine', 
-                                radius=np.array([self.win.size[1]/self.win.size[0], 1.0]),
-                                center=(0.0, 0.0), 
-                                range=[-1, 1], 
-                                fringeWidth=0.02
-                                )
+        mask = filters.makeMask(
+            matrixSize=self.win.size[0], 
+            shape='raisedCosine', 
+            radius=np.array([self.win.size[1]/self.win.size[0], 1.0]),
+            center=(0.0, 0.0), 
+            range=[-1, 1], 
+            fringeWidth=0.02
+        )
 
         #adjust mask size in case the stimulus runs on a mac 
-        if self.settings['operating system'] == 'mac':
+        if self.settings['operating_system'] == 'mac':
             mask_size = [self.win.size[0]/2,self.win.size[1]/2]
         else: 
             mask_size = [self.win.size[0],self.win.size[1]]
             
-        self.mask_stim = visual.GratingStim(self.win, 
-                                        mask=-mask, 
-                                        tex=None, 
-                                        units='pix',
-                                        
-                                        size=mask_size, 
-                                        pos = np.array((0.0,0.0)), 
-                                        color = [0,0,0]) 
-        
-
-
+        self.mask_stim = visual.GratingStim(
+            self.win, 
+            mask=-mask, 
+            tex=None, 
+            units='pix',                            
+            size=mask_size, 
+            pos = np.array((0.0,0.0)), 
+            color = [0,0,0]
+        )
 
         #as current basic task, generate fixation circles of different colors, with black border
-        
-        fixation_radius_pixels=tools.monitorunittools.deg2pix(self.settings['PRF stimulus settings']['Size fixation dot in degrees'], self.monitor)/2
+        fixation_radius_pixels=tools.monitorunittools.deg2pix(self.settings['PRF_stimulus_settings']['Size_fixation_dot_in_degrees'], self.monitor)/2
 
 #        self.fixation_circle = visual.Circle(self.win, 
 #            radius=fixation_radius_pixels, 
 #            units='pix', lineColor='black')
         
-        
         #two colors of the fixation circle for the task
-        self.fixation_disk_0 = visual.Circle(self.win, 
-            units='pix', radius=fixation_radius_pixels, 
-            fillColor=[1,-1,-1], lineColor=[1,-1,-1])
+        self.fixation_disk_0 = visual.Circle(
+            self.win, 
+            units='pix', 
+            radius=fixation_radius_pixels, 
+            fillColor=[1,-1,-1], 
+            lineColor=[1,-1,-1])
         
-        self.fixation_disk_1 = visual.Circle(self.win, 
-            units='pix', radius=fixation_radius_pixels, 
-            fillColor=[-1,1,-1], lineColor=[-1,1,-1])
+        self.fixation_disk_1 = visual.Circle(
+            self.win, 
+            units='pix', 
+            radius=fixation_radius_pixels, 
+            fillColor=[-1,1,-1], 
+            lineColor=[-1,1,-1])
 
-
-
+        # delimiter stimuli
+        if self.screen_delimit_trial:
+            self.delim = DelimiterLines(
+                win=self.win, 
+                color=self.settings['various'].get('cue_color'),
+                colorSpace="hex")
 
     def create_trials(self):
         """creates trials by setting up prf stimulus sequence"""
-        self.trial_list=[]
+
+        # start with dummy if no screen delimiter trial is requested
+        dummy_id = 0
+
+        # screen delimiter trial
+        self.cut_pixels = {"top": 0, "right": 0, "bottom": 0, "left": 0}
+        if self.screen_delimit_trial:
+            delimiter_trial = ScreenDelimiterTrial(
+                session=self,
+                trial_nr=0,
+                phase_durations=[np.inf,np.inf,np.inf,np.inf],
+                keys=['b', 'y', 'r'],
+                delim_step=self.settings['PRF_stimulus_settings'].get('delimiter_increments'))
+            dummy_id = 1
+        
+        # Only 1 phase of np.inf so that we can run the fixation task right of the bat
+        dummy_trial = DummyWaiterTrial(
+            session=self,
+            trial_nr=dummy_id,
+            phase_durations=[np.inf],
+            txt='Waiting for scanner trigger')
+
+        # insert delimiter trial if requested
+        self.trial_list = [dummy_trial]
+        if self.screen_delimit_trial:
+            self.trial_list = [delimiter_trial, dummy_trial]
+        
+        # track initial number of trials depending on presence of delimiter trial
+        trial_counter = len(self.trial_list)
         
         #simple tools to check subject responses online
         self.correct_responses = 0
         self.total_responses = 0
         self.dot_count = 0
         
-        bar_orientations = np.array(self.settings['PRF stimulus settings']['Bar orientations'])
+        bar_orientations = np.array(self.settings['PRF_stimulus_settings']['Bar_orientations'])
         #create as many trials as TRs. 5 extra TRs at beginning + bar passes + blanks
-        self.trial_number = 5 + self.settings['PRF stimulus settings']['Bar pass steps']*len(np.where(bar_orientations != -1)[0]) + self.settings['PRF stimulus settings']['Blanks length']*len(np.where(bar_orientations == -1)[0])
+        self.trial_number = 5 + self.settings['PRF_stimulus_settings']['Bar_pass_steps']*len(np.where(bar_orientations != -1)[0]) + self.settings['PRF_stimulus_settings']['Blanks_length']*len(np.where(bar_orientations == -1)[0])
   
         print("Expected number of TRs: %d"%self.trial_number)
         #create bar orientation list at each TR (this can be done in many different ways according to necessity)
         #for example, currently blank periods have same length as bar passes. this can easily be changed here
-        steps_array=self.settings['PRF stimulus settings']['Bar pass steps']*np.ones(len(bar_orientations))
-        blanks_array=self.settings['PRF stimulus settings']['Blanks length']*np.ones(len(bar_orientations))
+        steps_array=self.settings['PRF_stimulus_settings']['Bar_pass_steps']*np.ones(len(bar_orientations))
+        blanks_array=self.settings['PRF_stimulus_settings']['Blanks_length']*np.ones(len(bar_orientations))
     
         repeat_times=np.where(bar_orientations == -1, blanks_array, steps_array).astype(int)
  
@@ -146,13 +171,12 @@ class PRFSession(Session):
         
         
         #calculation of positions depend on whether code is run on mac
-        if self.settings['operating system'] == 'mac':
-            bar_pos_array = (self.win.size[1]/2)*np.linspace(-0.5,0.5, self.settings['PRF stimulus settings']['Bar pass steps'])
+        if self.settings['operating_system'] == 'mac':
+            bar_pos_array = (self.win.size[1]/2)*np.linspace(-0.5,0.5, self.settings['PRF_stimulus_settings']['Bar_pass_steps'])
         else:
-            bar_pos_array = self.win.size[1]*np.linspace(-0.5,0.5, self.settings['PRF stimulus settings']['Bar pass steps'])
+            bar_pos_array = self.win.size[1]*np.linspace(-0.5,0.5, self.settings['PRF_stimulus_settings']['Bar_pass_steps'])
         
-        
-        blank_array = np.zeros(self.settings['PRF stimulus settings']['Blanks length'])
+        blank_array = np.zeros(self.settings['PRF_stimulus_settings']['Blanks_length'])
         
         #the 5 empty trials at beginning
         self.bar_pos_in_ori=np.zeros(5)
@@ -171,15 +195,16 @@ class PRFSession(Session):
         #trial list
         for i in range(self.trial_number):
                 
-            self.trial_list.append(PRFTrial(session=self,
-                                            trial_nr=i,
-                                               
-                           bar_orientation=self.bar_orientation_at_TR[i],
-                           bar_position_in_ori=self.bar_pos_in_ori[i],
-                           bar_direction=self.bar_direction_at_TR[i]
-                           #,tracker=self.tracker
-                           ))
-
+            self.trial_list.append(
+                PRFTrial(
+                    session=self,
+                    trial_nr=i+trial_counter,
+                    bar_orientation=self.bar_orientation_at_TR[i],
+                    bar_position_in_ori=self.bar_pos_in_ori[i],
+                    bar_direction=self.bar_direction_at_TR[i]
+                    #,tracker=self.tracker
+                )
+            )
 
         #times for dot color change. continue the task into the topup
         self.total_time = self.trial_number*self.bar_step_length 
@@ -187,11 +212,9 @@ class PRFSession(Session):
         if self.settings['mri']['topup_scan']==True:
             self.total_time += self.topup_scan_duration
         
-        
         #DOT COLOR CHANGE TIMES    
-        self.dot_switch_color_times = np.arange(3, self.total_time, float(self.settings['Task settings']['color switch interval']))
+        self.dot_switch_color_times = np.arange(3, self.total_time, float(self.settings['Task_settings']['color_switch_interval']))
         self.dot_switch_color_times += (2*np.random.rand(len(self.dot_switch_color_times))-1)
-        
         
         #needed to keep track of which dot to print
         self.current_dot_time=0
@@ -211,11 +234,11 @@ class PRFSession(Session):
   
         #draw the bar at the required orientation for this TR, unless the orientation is -1, code for a blank period
         if self.current_trial.bar_orientation != -1:
-            self.prf_stim.draw(time=prf_time, 
-                               pos_in_ori=self.current_trial.bar_position_in_ori, 
-                               orientation=self.current_trial.bar_orientation,
-                               bar_direction=self.current_trial.bar_direction)
-            
+            self.prf_stim.draw(
+                time=prf_time, 
+                pos_in_ori=self.current_trial.bar_position_in_ori, 
+                orientation=self.current_trial.bar_orientation,
+                bar_direction=self.current_trial.bar_direction)
             
         #hacky way to draw the correct dot color. could be improved
         if self.next_dot_time<len(self.dot_switch_color_times):
@@ -230,12 +253,10 @@ class PRFSession(Session):
                     
         #self.fixation_circle.draw()
 
-
-
     def run(self):
         """run the session"""
         # cycle through trials
-        self.display_text('Waiting for scanner', keys=self.settings['mri'].get('sync', 't'))
+        # self.display_text('Waiting for scanner', keys=self.settings['mri'].get('sync', 't'))
 
         self.start_experiment()
         
@@ -246,18 +267,24 @@ class PRFSession(Session):
         
         print(f"Expected number of responses: {len(self.dot_switch_color_times)}")
         print(f"Total subject responses: {self.total_responses}")
-        print(f"Correct responses (within {self.settings['Task settings']['response interval']}s of dot color change): {self.correct_responses}")
+        print(f"Correct responses (within {self.settings['Task_settings']['response_interval']}s of dot color change): {self.correct_responses}")
         np.save(opj(self.output_dir, self.output_str+'_simple_response_data.npy'), {"Expected number of responses":len(self.dot_switch_color_times),
         														                      "Total subject responses":self.total_responses,
-        														                      f"Correct responses (within {self.settings['Task settings']['response interval']}s of dot color change)":self.correct_responses})
+        														                      f"Correct responses (within {self.settings['Task_settings']['response_interval']}s of dot color change)":self.correct_responses})
         
         #print('Percentage of correctly answered trials: %.2f%%'%(100*self.correct_responses/len(self.dot_switch_color_times)))
         
-        
-        if self.settings['PRF stimulus settings']['Screenshot']==True:
+        if self.settings['PRF_stimulus_settings']['Screenshot']==True:
             self.win.saveMovieFrames(opj(self.screen_dir, self.output_str+'_Screenshot.png'))
             
+        self.add_settings = {"screen_delim": self.cut_pixels}
+
+        # merge settings
+        _merge_settings(self.settings, self.add_settings)
+
+        # write to disk
+        settings_out = opj(self.output_dir, self.output_str + '_expsettings.yml')
+        with open(settings_out, 'w') as f_out:
+            yaml.dump(self.settings, f_out, indent=4, default_flow_style=False)
+            
         self.close()
-
-        
-

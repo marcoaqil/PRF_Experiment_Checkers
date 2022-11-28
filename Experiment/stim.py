@@ -9,15 +9,33 @@ import numpy as np
 from psychopy import visual
 from psychopy import tools
 
+class DelimiterLines(object):
 
-class PRFStim(object):  
-    def __init__(self, session, 
-                        squares_in_bar=2 ,
-                        bar_width_deg=1.25,
-                        tex_nr_pix=2048,
-                        flicker_frequency=6, 
+    def __init__(self, win, color, *args, **kwargs):
+        self.color = color
+        self.line1 = visual.Line(
+            win, 
+            lineWidth=3, 
+            lineColor=self.color, 
+            opacity=0.3, 
+            units="pix",
+            *args, 
+            **kwargs)
 
-                        **kwargs):
+    def draw(self):
+        self.line1.draw()
+
+class PRFStim(object):
+
+    def __init__(
+        self, 
+        session, 
+        squares_in_bar=2 ,
+        bar_width_deg=1.25,
+        tex_nr_pix=2048,
+        flicker_frequency=6, 
+        **kwargs):
+        
         self.session = session
         self.squares_in_bar = squares_in_bar
         self.bar_width_deg = bar_width_deg
@@ -60,58 +78,66 @@ class PRFStim(object):
         
         
         #construct stimuli with psychopy and textures in different position/phases
-        self.checkerboard_1 = visual.GratingStim(self.session.win,
-                                                 tex=self.sqr_tex,
-                                                 units='pix',
-                                                 size=[self.session.win.size[1],self.session.win.size[1]])
-        self.checkerboard_2 = visual.GratingStim(self.session.win,
-                                                 tex=self.sqr_tex_phase_1,                                               
-                                                 units='pix',
-                                                 size=[self.session.win.size[1],self.session.win.size[1]])
-        self.checkerboard_3 = visual.GratingStim(self.session.win,
-                                                 tex=self.sqr_tex_phase_2,                                                
-                                                 units='pix',
-                                                 size=[self.session.win.size[1],self.session.win.size[1]])
-        
-        
+        self.checkerboard_1 = visual.GratingStim(
+            self.session.win,
+            tex=self.sqr_tex,
+            units='pix',
+            size=[self.session.win.size[1],self.session.win.size[1]])
+        self.checkerboard_2 = visual.GratingStim(
+            self.session.win,
+            tex=self.sqr_tex_phase_1,                                               
+            units='pix',
+            size=[self.session.win.size[1],self.session.win.size[1]])
+        self.checkerboard_3 = visual.GratingStim(
+            self.session.win,
+            tex=self.sqr_tex_phase_2,                                                
+            units='pix',
+            size=[self.session.win.size[1],self.session.win.size[1]])        
         
         #for reasons of symmetry, some stimuli (4 and 8 in the order) are generated differently  if the bar has only one square
-        if self.squares_in_bar!=1:                
-            self.checkerboard_4 = visual.GratingStim(self.session.win,
-                                                     tex=np.fliplr(self.sqr_tex_phase_1),
-                                                     units='pix',
-                                                     size=[self.session.win.size[1],self.session.win.size[1]])
-            self.checkerboard_8 = visual.GratingStim(self.session.win,
-                                                     tex=-np.fliplr(self.sqr_tex_phase_1),
-                                                     units='pix',
-                                                     size=[self.session.win.size[1],self.session.win.size[1]])
-                
-        else:         
-            self.checkerboard_4 = visual.GratingStim(self.session.win, 
-                                                     tex=np.flipud(self.sqr_tex_phase_1),
-                                                     units='pix',
-                                                     size=[self.session.win.size[1],self.session.win.size[1]])
+        if self.squares_in_bar != 1:                
+            self.checkerboard_4 = visual.GratingStim(
+                self.session.win,
+                tex=np.fliplr(self.sqr_tex_phase_1),
+                units='pix',
+                size=[self.session.win.size[1],self.session.win.size[1]])
             
-            self.checkerboard_8 = visual.GratingStim(self.session.win,
-                                                     tex=-np.flipud(self.sqr_tex_phase_1),
-                                                     units='pix',
-                                                     size=[self.session.win.size[1],self.session.win.size[1]])
+            self.checkerboard_8 = visual.GratingStim(
+                self.session.win,
+                tex=-np.fliplr(self.sqr_tex_phase_1),
+                units='pix',
+                size=[self.session.win.size[1],self.session.win.size[1]])
+        else:         
+            self.checkerboard_4 = visual.GratingStim(
+                self.session.win, 
+                tex=np.flipud(self.sqr_tex_phase_1),
+                units='pix',
+                size=[self.session.win.size[1],self.session.win.size[1]])
+            
+            self.checkerboard_8 = visual.GratingStim(
+                self.session.win,
+                tex=-np.flipud(self.sqr_tex_phase_1),
+                units='pix',
+                size=[self.session.win.size[1],self.session.win.size[1]])
         
         #all other textures are the same
-        self.checkerboard_5 = visual.GratingStim(self.session.win,
-                                                 tex=-self.sqr_tex,
-                                                 units='pix',
-                                                 size=[self.session.win.size[1],self.session.win.size[1]])
+        self.checkerboard_5 = visual.GratingStim(
+            self.session.win,
+            tex=-self.sqr_tex,
+            units='pix',
+            size=[self.session.win.size[1],self.session.win.size[1]])
             
-        self.checkerboard_6 = visual.GratingStim(self.session.win,
-                                                 tex=-self.sqr_tex_phase_1,
-                                                 units='pix',
-                                                 size=[self.session.win.size[1],self.session.win.size[1]])
+        self.checkerboard_6 = visual.GratingStim(
+            self.session.win,
+            tex=-self.sqr_tex_phase_1,
+            units='pix',
+            size=[self.session.win.size[1],self.session.win.size[1]])
             
-        self.checkerboard_7 = visual.GratingStim(self.session.win,
-                                                 tex=-self.sqr_tex_phase_2,
-                                                 units='pix',
-                                                 size=[self.session.win.size[1],self.session.win.size[1]])
+        self.checkerboard_7 = visual.GratingStim(
+            self.session.win,
+            tex=-self.sqr_tex_phase_2,
+            units='pix',
+            size=[self.session.win.size[1],self.session.win.size[1]])
 
             
 
