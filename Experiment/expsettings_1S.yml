@@ -15,7 +15,7 @@ monitor:
     name: default
     width: 69.8  # in cm
     distance: 196  # in cm
-    gamma: 1
+    gamma: 2.1
 
 operating system: linux # specify the OS the code is run on as 'mac', 'linux', or 'windows'
 
