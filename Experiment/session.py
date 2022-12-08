@@ -90,7 +90,7 @@ class PRFSession(PylinkEyetrackerSession):
         )
 
         #as current basic task, generate fixation circles of different colors, with black border
-        fixation_radius_pixels=tools.monitorunittools.deg2pix(self.settings['PRF_stimulus_settings']['Size_fixation_dot_in_degrees'], self.monitor)/2
+        fixation_radius_deg = self.settings['PRF_stimulus_settings']['Size_fixation_dot_in_degrees']
 
 #        self.fixation_circle = visual.Circle(self.win, 
 #            radius=fixation_radius_pixels, 
@@ -99,15 +99,15 @@ class PRFSession(PylinkEyetrackerSession):
         #two colors of the fixation circle for the task
         self.fixation_disk_0 = visual.Circle(
             self.win, 
-            units='pix', 
-            radius=fixation_radius_pixels, 
+            units='deg', 
+            radius=fixation_radius_deg, 
             fillColor=[1,-1,-1], 
             lineColor=[1,-1,-1])
         
         self.fixation_disk_1 = visual.Circle(
             self.win, 
-            units='pix', 
-            radius=fixation_radius_pixels, 
+            units='deg', 
+            radius=fixation_radius_deg, 
             fillColor=[-1,1,-1], 
             lineColor=[-1,1,-1])
 
