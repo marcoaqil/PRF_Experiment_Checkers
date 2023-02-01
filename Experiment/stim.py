@@ -32,7 +32,7 @@ class PRFStim(object):
         session, 
         squares_in_bar=2 ,
         bar_width_deg=1.25,
-        tex_nr_pix=2048,
+        tex_nr_pix=1024,
         flicker_frequency=6, 
         **kwargs):
         

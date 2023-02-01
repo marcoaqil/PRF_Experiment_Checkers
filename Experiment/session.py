@@ -122,18 +122,19 @@ class PRFSession(PylinkEyetrackerSession):
         """creates trials by setting up prf stimulus sequence"""
 
         # start with dummy if no screen delimiter trial is requested
-        dummy_id = 0
+        dummy_id = -1
 
         # screen delimiter trial
         self.cut_pixels = {"top": 0, "right": 0, "bottom": 0, "left": 0}
         if self.screen_delimit_trial:
+
             delimiter_trial = ScreenDelimiterTrial(
                 session=self,
-                trial_nr=0,
+                trial_nr=dummy_id,
                 phase_durations=[np.inf,np.inf,np.inf,np.inf],
                 keys=['b', 'y', 'r'],
                 delim_step=self.settings['PRF_stimulus_settings'].get('delimiter_increments'))
-            dummy_id = 1
+            
         
         # Only 1 phase of np.inf so that we can run the fixation task right of the bat
         dummy_trial = DummyWaiterTrial(
@@ -148,7 +149,7 @@ class PRFSession(PylinkEyetrackerSession):
             self.trial_list = [delimiter_trial, dummy_trial]
         
         # track initial number of trials depending on presence of delimiter trial
-        trial_counter = len(self.trial_list)
+        #self.dummy_trial_counter = len(self.trial_list)
         
         #simple tools to check subject responses online
         self.correct_responses = 0
@@ -159,7 +160,7 @@ class PRFSession(PylinkEyetrackerSession):
         #create as many trials as TRs. 5 extra TRs at beginning + bar passes + blanks
         self.trial_number = 5 + self.settings['PRF_stimulus_settings']['Bar_pass_steps']*len(np.where(bar_orientations != -1)[0]) + self.settings['PRF_stimulus_settings']['Blanks_length']*len(np.where(bar_orientations == -1)[0])
   
-        print("Expected number of TRs: %d"%self.trial_number)
+        print("Expected number of stimulus TRs: %d"%self.trial_number)
         #create bar orientation list at each TR (this can be done in many different ways according to necessity)
         #for example, currently blank periods have same length as bar passes. this can easily be changed here
         steps_array=self.settings['PRF_stimulus_settings']['Bar_pass_steps']*np.ones(len(bar_orientations))
@@ -198,7 +199,7 @@ class PRFSession(PylinkEyetrackerSession):
             self.trial_list.append(
                 PRFTrial(
                     session=self,
-                    trial_nr=i+trial_counter,
+                    trial_nr=i,
                     bar_orientation=self.bar_orientation_at_TR[i],
                     bar_position_in_ori=self.bar_pos_in_ori[i],
                     bar_direction=self.bar_direction_at_TR[i]
@@ -211,6 +212,8 @@ class PRFSession(PylinkEyetrackerSession):
         
         if self.settings['mri']['topup_scan']==True:
             self.total_time += self.topup_scan_duration
+
+        print(f"expected total duration: {self.total_time}s")
         
         #DOT COLOR CHANGE TIMES    
         self.dot_switch_color_times = np.arange(3, self.total_time, float(self.settings['Task_settings']['color_switch_interval']))
@@ -219,9 +222,7 @@ class PRFSession(PylinkEyetrackerSession):
         #needed to keep track of which dot to print
         self.current_dot_time=0
         self.next_dot_time=1
-
-        #only for testing purposes
-        np.save(opj(self.output_dir, self.output_str+'_DotSwitchColorTimes.npy'), self.dot_switch_color_times)
+        
         print(self.win.size)
 
     def draw_stimulus(self):
@@ -258,11 +259,20 @@ class PRFSession(PylinkEyetrackerSession):
         # cycle through trials
         # self.display_text('Waiting for scanner', keys=self.settings['mri'].get('sync', 't'))
 
+        if self.eyetracker_on:
+            self.calibrate_eyetracker()
+            self.start_recording_eyetracker()
+
         self.start_experiment()
         
         for trial_idx in range(len(self.trial_list)):
             self.current_trial = self.trial_list[trial_idx]
             self.current_trial_start_time = self.clock.getTime()
+
+            if self.current_trial.trial_nr == 0:
+                self.dot_switch_color_times += self.experiment_start_time
+                np.save(opj(self.output_dir, self.output_str+'_DotSwitchColorTimes.npy'), self.dot_switch_color_times)
+
             self.current_trial.run()
         
         print(f"Expected number of responses: {len(self.dot_switch_color_times)}")
