@@ -158,7 +158,7 @@ class PRFSession(PylinkEyetrackerSession):
         
         bar_orientations = np.array(self.settings['PRF_stimulus_settings']['Bar_orientations'])
         #create as many trials as TRs. 5 extra TRs at beginning + bar passes + blanks
-        self.trial_number = 5 + self.settings['PRF_stimulus_settings']['Bar_pass_steps']*len(np.where(bar_orientations != -1)[0]) + self.settings['PRF_stimulus_settings']['Blanks_length']*len(np.where(bar_orientations == -1)[0])
+        self.trial_number = self.settings['PRF_stimulus_settings']['Extra_TRs_beginning'] + self.settings['PRF_stimulus_settings']['Bar_pass_steps']*len(np.where(bar_orientations != -1)[0]) + self.settings['PRF_stimulus_settings']['Blanks_length']*len(np.where(bar_orientations == -1)[0])
   
         print("Expected number of stimulus TRs: %d"%self.trial_number)
         #create bar orientation list at each TR (this can be done in many different ways according to necessity)
@@ -168,7 +168,7 @@ class PRFSession(PylinkEyetrackerSession):
     
         repeat_times=np.where(bar_orientations == -1, blanks_array, steps_array).astype(int)
  
-        self.bar_orientation_at_TR = np.concatenate((-1*np.ones(5), np.repeat(bar_orientations, repeat_times)))
+        self.bar_orientation_at_TR = np.concatenate((-1*np.ones(self.settings['PRF_stimulus_settings']['Extra_TRs_beginning']), np.repeat(bar_orientations, repeat_times)))
         
         
         #calculation of positions depend on whether code is run on mac
@@ -180,7 +180,7 @@ class PRFSession(PylinkEyetrackerSession):
         blank_array = np.zeros(self.settings['PRF_stimulus_settings']['Blanks_length'])
         
         #the 5 empty trials at beginning
-        self.bar_pos_in_ori=np.zeros(5)
+        self.bar_pos_in_ori=np.zeros(self.settings['PRF_stimulus_settings']['Extra_TRs_beginning'])
         
         #bar position at TR
         for i in range(len(bar_orientations)):
@@ -216,7 +216,7 @@ class PRFSession(PylinkEyetrackerSession):
         print(f"expected total duration: {self.total_time}s")
         
         #DOT COLOR CHANGE TIMES    
-        self.dot_switch_color_times = np.arange(3, self.total_time, float(self.settings['Task_settings']['color_switch_interval']))
+        self.dot_switch_color_times = np.arange(2.5, self.total_time, float(self.settings['Task_settings']['color_switch_interval']))
         self.dot_switch_color_times += (2*np.random.rand(len(self.dot_switch_color_times))-1)
         
         #needed to keep track of which dot to print
@@ -268,8 +268,10 @@ class PRFSession(PylinkEyetrackerSession):
         for trial_idx in range(len(self.trial_list)):
             self.current_trial = self.trial_list[trial_idx]
             self.current_trial_start_time = self.clock.getTime()
+            print(f"trial {self.current_trial.trial_nr} {self.current_trial_start_time}")
 
             if self.current_trial.trial_nr == 0:
+                print(f"expstart {self.experiment_start_time}")
                 self.dot_switch_color_times += self.experiment_start_time
                 np.save(opj(self.output_dir, self.output_str+'_DotSwitchColorTimes.npy'), self.dot_switch_color_times)
 

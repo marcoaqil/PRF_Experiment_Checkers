@@ -40,7 +40,7 @@ mri:
     #only relevant for scanning simulations
     simulate: False #set this to true to simulate a virtual scanner   
     TA: 1.5  # seconds to acquire one volume
-    volumes: 40  # number of 3D volumes to obtain in a given scanning run
+    volumes: 100  # number of 3D volumes to obtain in a given scanning run
     sync: t  # character used as flag for simulation sync timing, default=‘5’
     skip: 0  # how many frames to silently omit initially during T1 stabilization, no sync pulse.
     sound: False  # simulate scanner noise
@@ -52,12 +52,13 @@ PRF_stimulus_settings:
     Squares_in_bar: 2
     Bar_pass_steps: 20                # number of steps the bar takes to traverse the aperture
     Blanks_length: 15                  # length of interbar periods (-1 in orientation). like bar pass steps, in units of TRs or bar step length
+    Extra_TRs_beginning: 5
     Bar_orientations: [-1, 0,  225, -1, 90, 315, -1,  180, 45, -1,  270, 135,  -1, -1]
     Bar_width_in_degrees: 1.25
     Checkers_motion_speed: 3          # checkers motion speed. direction is randomly up/down at each bar step
     Size_fixation_dot_in_degrees: 0.025 # dot changes color on average every two TRs (or bar steps)
     delimiter_increments: 5
-    Bar_step_length: 1.5                # in seconds. this is only used if Scanner sync is set to False. if scanner sync is True, the mri TR parameter is used as bar step length
+    Bar_step_length: 1.5                # in seconds. this is only used if Scanner sync is set to False
 
 Task_settings: 
     response_interval: 0.5 # time in s you allow the participant to respond that still counts as correct response
