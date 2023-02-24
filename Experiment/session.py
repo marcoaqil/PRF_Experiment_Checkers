@@ -216,8 +216,14 @@ class PRFSession(PylinkEyetrackerSession):
         print(f"expected total duration: {self.total_time}s")
         
         #DOT COLOR CHANGE TIMES    
-        self.dot_switch_color_times = np.arange(2.5, self.total_time, float(self.settings['Task_settings']['color_switch_interval']))
-        self.dot_switch_color_times += (2*np.random.rand(len(self.dot_switch_color_times))-1)
+        self.dot_switch_color_times = np.arange(float(self.settings['Task_settings']['color_switch_interval']),
+                                        self.total_time, float(self.settings['Task_settings']['color_switch_interval']))
+        
+        max_diff = self.settings['Task_settings']['color_switch_interval'] - self.settings['Task_settings']['response_interval'] - 0.1
+
+        self.dot_switch_color_times += (max_diff*np.random.rand(len(self.dot_switch_color_times))-max_diff/2)
+
+        
         
         #needed to keep track of which dot to print
         self.current_dot_time=0
@@ -251,6 +257,9 @@ class PRFSession(PylinkEyetrackerSession):
                 else:
                     self.current_dot_time+=2
                     self.next_dot_time+=2
+        else:
+            self.fixation_disk_1.draw()
+
                     
         #self.fixation_circle.draw()
 
@@ -277,6 +286,10 @@ class PRFSession(PylinkEyetrackerSession):
 
             self.current_trial.run()
         
+        self.quit()
+
+
+    def quit(self):
         print(f"Expected number of responses: {len(self.dot_switch_color_times)}")
         print(f"Total subject responses: {self.total_responses}")
         print(f"Correct responses (within {self.settings['Task_settings']['response_interval']}s of dot color change): {self.correct_responses}")
@@ -286,7 +299,7 @@ class PRFSession(PylinkEyetrackerSession):
         
         #print('Percentage of correctly answered trials: %.2f%%'%(100*self.correct_responses/len(self.dot_switch_color_times)))
         
-        if self.settings['PRF_stimulus_settings']['Screenshot']==True:
+        if self.settings['PRF_stimulus_settings']['Screenshot']:
             self.win.saveMovieFrames(opj(self.screen_dir, self.output_str+'_Screenshot.png'))
             
         self.add_settings = {"screen_delim": self.cut_pixels}
@@ -299,4 +312,4 @@ class PRFSession(PylinkEyetrackerSession):
         with open(settings_out, 'w') as f_out:
             yaml.dump(self.settings, f_out, indent=4, default_flow_style=False)
             
-        self.close()
+        super().quit()

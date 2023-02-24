@@ -28,11 +28,9 @@ eyetracker:
     address: '100.1.1.1'
     dot_size: 0.1
     options:
-        binocular_enabled: NO
         calibration_type: HV13
         sample_rate: 2000
-        calibration_area_proportion: 0.4 0.4
-        validation_area_proportion: 0.4 0.4
+
 
 mri:
     TR: 1.32  # seconds between volume acquisitions
@@ -40,7 +38,7 @@ mri:
     topup_duration: 50 # topup scan duration in seconds (no 't's)
 
     #only relevant for scanning simulations
-    simulate: False #set this to true to simulate a virtual scanner   
+    simulate: True #set this to true to simulate a virtual scanner   
     TA: 1.32  # seconds to acquire one volume
     volumes: 255  # number of 3D volumes to obtain in a given scanning run
     sync: t  # character used as flag for simulation sync timing, default=‘5’
@@ -49,7 +47,7 @@ mri:
 
 
 PRF_stimulus_settings:
-    Scanner_sync: True                # set this to true to make bar move on input 't'
+    Scanner_sync: False                # set this to true to make bar move on input 't'
     Screenshot: True
     Squares_in_bar: 2
     Bar_pass_steps: 20                # number of steps the bar takes to traverse the aperture

@@ -57,19 +57,6 @@ class PRFTrial(Trial):
         if events:
             if 'q' in [ev[0] for ev in events]:  # specific key in settings?
 
-                np.save(
-                    opj(self.session.output_dir, self.session.output_str+'_simple_response_data.npy'), 
-                    {
-                        "Expected number of responses": len(self.session.dot_switch_color_times),
-                        "Total subject responses":self.session.total_responses,
-                        f"Correct responses (within {self.session.settings['Task_settings']['response_interval']}s of dot color change)": self.session.correct_responses
-                    }
-                )
-           
-                if self.session.settings['PRF_stimulus_settings']['Screenshot']:
-                    self.session.win.saveMovieFrames(opj(self.session.screen_dir, self.session.output_str+'_Screenshot.png'))
-                     
-                self.session.close()
                 self.session.quit()
  
             for key, t in events:
@@ -115,7 +102,7 @@ class PRFTrial(Trial):
         #update counter
         if self.session.dot_count < len(self.session.dot_switch_color_times): 
             if self.session.clock.getTime() > self.session.dot_switch_color_times[self.session.dot_count] + \
-                float(self.session.settings['Task_settings']['response_interval'])+0.1: #to give time to respond
+                float(self.session.settings['Task_settings']['response_interval']): #to give time to respond
                 self.session.dot_count += 1   
                 # print(f'dot count: {self.session.dot_count}') #testing
 
