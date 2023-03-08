@@ -29,13 +29,15 @@ eyetracker:
     dot_size: 0.1
     options:
         calibration_type: HV13
-        sample_rate: 2000
+        sample_rate: 1000
+        calibration_area_proportion: 0.4 0.4
+        validation_area_proportion: 0.4 0.4
 
 
 mri:
     TR: 1.32  # seconds between volume acquisitions
-    topup_scan: True
-    topup_duration: 50 # topup scan duration in seconds (no 't's)
+    topup_scan: False
+    topup_duration: 40 # topup scan duration in seconds (no 't's)
 
     #only relevant for scanning simulations
     simulate: True #set this to true to simulate a virtual scanner   
@@ -47,7 +49,7 @@ mri:
 
 
 PRF_stimulus_settings:
-    Scanner_sync: False                # set this to true to make bar move on input 't'
+    Scanner_sync: True                # set this to true to make bar move on input 't'
     Screenshot: True
     Squares_in_bar: 2
     Bar_pass_steps: 20                # number of steps the bar takes to traverse the aperture
@@ -58,7 +60,7 @@ PRF_stimulus_settings:
     Checkers_motion_speed: 3          # checkers motion speed. direction is randomly up/down at each bar step
     Size_fixation_dot_in_degrees: 0.05 # dot changes color on average every two TRs (or bar steps)
     delimiter_increments: 5
-    Bar_step_length: 1.5                # in seconds. this is only used if Scanner sync is set to False
+    Bar_step_length: 1.32                # in seconds. this is only used if Scanner sync is set to False
 
 Task_settings: 
     response_interval: 0.6 # time in s you allow the participant to respond that still counts as correct response

@@ -133,41 +133,25 @@ class ScreenDelimiterTrial(Trial):
 
         if self.phase == 0:
             txt = """
-Use your right INDEX finger (or 'b') to move the bar UP
-Use your right RING finger (or 'y') to move the bar DOWN
-            
-
-Use your right PINKY (or 'r') to continue to the next stage"""
+Tell the experimenter when you see a horizontal line on the screen"""
             self.start_pos = (-self.session.win.size[0]//2,self.session.win.size[1]//3)
             self.session.delim.line1.start = self.start_pos
             self.session.delim.line1.end = (self.session.win.size[0],self.start_pos[1])
         elif self.phase == 1:
             txt = """
-Use your right INDEX (or 'b') finger to move the bar RIGHT
-Use your right RING (or 'y') finger to move the bar LEFT
-            
-
-Use your right PINKY (or 'r') to continue to the next stage"""
+Tell the experimenter when you see a vertical line on the screen"""
             self.start_pos = (self.session.win.size[0]//2.5,-self.session.win.size[1]//2)
             self.session.delim.line1.start = self.start_pos
             self.session.delim.line1.end = (self.start_pos[0],self.session.win.size[1])     
         elif self.phase == 2:
             txt = """
-Use your right INDEX (or 'b') finger to move the bar DOWN
-Use your right RING (or 'y') finger to move the bar UP
-            
-
-Use your right PINKY (or 'r') to continue to the next stage"""
+Tell the experimenter when you see a horizontal line on the screen"""
             self.start_pos = (-self.session.win.size[0]//2,-self.session.win.size[1]//3)
             self.session.delim.line1.start = self.start_pos
             self.session.delim.line1.end = (self.session.win.size[0],self.start_pos[1])
         elif self.phase == 3:
             txt = """
-Use your right INDEX (or 'b') finger to move the bar LEFT
-Use your right RING (or 'y') finger to move the bar RIGHT
-            
-
-Use your right PINKY (or 'r') to continue to the experiment"""
+Tell the experimenter when you see a vertical line on the screen"""
             self.start_pos = (-self.session.win.size[0]//2.5,-self.session.win.size[1]//2)
             self.session.delim.line1.start = self.start_pos 
             self.session.delim.line1.end = (self.start_pos[0],self.session.win.size[1])     
