@@ -46,9 +46,9 @@ def main():
 
     output_dir = opj(log_dir, f"{output_str}_Logs")
     
-    if os.path.exists(output_dir):
-        print("Warning: output directory already exists. Renaming to avoid overwriting.")
-        output_dir = output_dir + datetime.now().strftime('%Y%m%d%H%M%S')
+    #if os.path.exists(output_dir):
+    #    print("Warning: output directory already exists. Renaming to avoid overwriting.")
+    output_dir = output_dir + datetime.now().strftime('%Y%m%d%H%M%S')
     
     settings_file = opj(os.getcwd(), f"expsettings_{task[5:]}.yml")
     ts = PRFSession(

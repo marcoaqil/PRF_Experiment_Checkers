@@ -36,8 +36,8 @@ eyetracker:
 
 mri:
     TR: 1.32  # seconds between volume acquisitions
-    topup_scan: False
-    topup_duration: 40 # topup scan duration in seconds (no 't's)
+    topup_scan: True
+    topup_duration: 5 # topup scan duration in seconds (no 't's)
 
     #only relevant for scanning simulations
     simulate: True #set this to true to simulate a virtual scanner   
